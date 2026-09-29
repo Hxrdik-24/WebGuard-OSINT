@@ -1,0 +1,79 @@
+/* IP Finder OSINT dashboard - lives inside a closed Shadow DOM, so page CSS cannot affect it
+   and it cannot affect the page. */
+:host { --bg:#0f141b; --bg2:#151c26; --line:#243040; --text:#dbe3ee; --mute:#8593a6; --ok:#4ade80; --warn:#fbbf24; --err:#f87171; --info:#60a5fa; --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+
+.icon { position:fixed; right:20px; bottom:20px; width:42px; height:42px; box-sizing:border-box; display:flex; align-items:center; justify-content:center;
+  background:var(--bg); color:var(--ok); border:1px solid #2f5d46; border-radius:50%; font:19px Arial,sans-serif; cursor:grab; user-select:none; touch-action:none;
+  box-shadow:0 4px 14px rgba(0,0,0,.35); z-index:2; }
+.icon:hover { background:var(--bg2); }
+.icon:focus-visible { outline:2px solid var(--info); outline-offset:2px; }
+.icon.dragging { cursor:grabbing; box-shadow:0 8px 24px rgba(0,0,0,.5); }
+
+.panel { position:fixed; display:none; flex-direction:column; width:380px; max-width:calc(100vw - 20px); max-height:min(620px,calc(100vh - 20px)); box-sizing:border-box;
+  background:var(--bg); color:var(--text); border:1px solid var(--line); border-radius:10px; font:12px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  box-shadow:0 10px 35px rgba(0,0,0,.5); z-index:1; overflow:hidden; }
+.panel.show { display:flex; }
+.panel * { box-sizing:border-box; }
+button { font:inherit; color:inherit; }
+
+.hdr { display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border-bottom:1px solid var(--line); }
+.brand { display:flex; align-items:center; gap:8px; }
+.ttl { font-size:14px; font-weight:600; }
+.sub { color:var(--mute); font-size:11px; }
+.hbtns { display:flex; gap:2px; }
+.icon-btn { width:26px; height:26px; padding:0; border:0; border-radius:6px; background:transparent; color:var(--mute); cursor:pointer; font-size:15px; line-height:1; flex:none; }
+.icon-btn:hover { background:var(--bg2); color:#fff; }
+.icon-btn.copied { color:var(--ok); }
+.icon-btn.failed { color:var(--err); }
+button:focus-visible, .card-head:focus-visible, .sec-head:focus-visible { outline:2px solid var(--info); outline-offset:-2px; }
+
+.scroll { overflow-y:auto; overscroll-behavior:contain; flex:1; min-height:0; }
+.target { padding:8px 12px; border-bottom:1px solid var(--line); }
+.trow { display:flex; align-items:center; gap:8px; padding:2px 0; }
+.trow .k { flex:0 0 62px; color:var(--mute); }
+.trow .v { flex:1; min-width:0; font-family:var(--mono); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+.section { border-bottom:1px solid var(--line); }
+.sec-head { width:100%; display:flex; align-items:center; gap:6px; padding:8px 12px; background:transparent; border:0; text-align:left; cursor:pointer; font-weight:600; color:var(--text); }
+.sec-head:hover { background:var(--bg2); }
+.count { margin-left:auto; color:var(--mute); font-weight:400; font-size:11px; }
+.chev { display:inline-block; color:var(--mute); font-size:10px; transition:transform .12s; flex:none; }
+.section.open > .sec-head .chev, .card.open > .card-head .chev { transform:rotate(90deg); }
+.sec-body { display:none; padding:0 8px 8px; }
+.section.open > .sec-body { display:block; }
+
+.card { border:1px solid var(--line); border-radius:6px; background:var(--bg2); margin-top:6px; }
+.card-head { display:flex; align-items:center; gap:8px; padding:6px 6px 6px 10px; cursor:pointer; }
+.dot { width:7px; height:7px; border-radius:50%; background:#3b4658; flex:none; }
+.card[data-state="loading"] .dot { background:var(--info); }
+.card[data-state="success"] .dot { background:var(--ok); }
+.card[data-state="error"] .dot { background:var(--err); }
+.card[data-state="not_available"] .dot { background:var(--warn); }
+.ct { flex:1; min-width:0; }
+.line1 { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+.name { font-weight:600; white-space:nowrap; }
+.sum { font-family:var(--mono); font-size:11px; color:var(--mute); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.card[data-state="success"] .sum { color:var(--ok); }
+.card[data-state="error"] .sum { color:var(--err); }
+.card[data-state="not_available"] .sum { color:var(--warn); }
+.src { color:var(--mute); font-size:10px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.card-body { display:none; padding:6px 10px 10px; border-top:1px solid var(--line); }
+.card.open > .card-body { display:block; }
+
+.rows .row { display:flex; gap:10px; padding:4px 0; border-bottom:1px solid #1d2734; }
+.rows .row:last-child { border-bottom:0; }
+.rows .k { flex:0 0 96px; color:var(--mute); }
+.rows .v { flex:1; min-width:0; }
+.vi { font-family:var(--mono); font-size:11px; overflow-wrap:anywhere; cursor:copy; }
+.vi:hover { color:#fff; }
+.vi.copied { color:var(--ok); }
+.more, .note, .srcline { color:var(--mute); font-size:11px; margin-top:6px; }
+.note { border-left:2px solid var(--warn); padding-left:8px; }
+.msg { color:var(--mute); }
+.msg.err { color:var(--err); }
+
+.btn { padding:4px 10px; border:1px solid var(--line); border-radius:6px; background:var(--bg); cursor:pointer; }
+.btn:hover:not(:disabled) { border-color:var(--info); }
+.btn:disabled { opacity:.6; cursor:default; }
+.btns-row { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+.foot { padding:8px 12px; border-top:1px solid var(--line); color:var(--mute); font-size:10.5px; }

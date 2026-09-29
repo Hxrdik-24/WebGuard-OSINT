@@ -1,0 +1,40 @@
+{
+  "manifest_version": 3,
+  "name": "IP Finder - OSINT Web Intelligence Assistant",
+  "version": "2.0.0",
+  "description": "Passive OSINT dashboard for the current website, opened from a draggable floating icon. Public sources only.",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://cloudflare-dns.com/*",
+    "https://ipwho.is/*",
+    "https://stat.ripe.net/*",
+    "https://rdap.org/*",
+    "https://crt.sh/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": [
+        "utils/validators.js",
+        "utils/formatters.js",
+        "utils/http.js",
+        "modules/headers.js",
+        "modules/security.js",
+        "modules/technology.js",
+        "modules/robots.js",
+        "modules/sitemap.js",
+        "modules/metadata.js",
+        "modules/resources.js",
+        "modules/report.js",
+        "ui/dashboard.js",
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
